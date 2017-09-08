@@ -1,32 +1,35 @@
-import Point from './object/point.js'
+import Point from './object/point'
+import coordinateSystem from './coordinate-system'
+import line  from './orbit/line'
+import circle  from './orbit/circle'
 
-class Orbit {
-	constructor(fn,speed){
-		this.fn = fn
-		this.speed = speed
-		this.time = 0
-	}
-	draw(Obj){
-		const position = this.fn(this.time+=this.speed) 
-		Obj.setPosition(position.x,position.y)
-	}
-}
-
-const line = (t) => {
-	let x,y
-	if(t%200<100)
-		y=x = t%200
-	else
-		y=x = 200-t%200
-	return {x,y}
-}
 const ctx = document.getElementById('can').getContext('2d')
-const point = new Point(ctx,10,'#fff')
-const or = new Orbit(line,1)
+const point = new Point(ctx,1,'#fff')
+const cs = new coordinateSystem(600,300)
+const cs2 = new coordinateSystem(600,300,Math.PI/3)
+const getCoor=(NUM)=>{
+	return Array(NUM).fill(0).map((item,index)=>{
+		return {
+			coor:new coordinateSystem(600,300,Math.PI*2/NUM*index),
+			orbit:new line(index*1+1)
+		}
+	})
+}
 
+const lineArray = Array(80).fill(0).map((item,index)=>{
+	return new line(index*5)
+})
+const coors = getCoor(20)
 const render = () =>{
 	ctx.clearRect(0,0,1200,600)
-	or.draw(point)	
+	let c = cs
+	
+	coors.forEach((item,index)=>{
+		let c = item.coor
+		lineArray.forEach((item,index)=>{
+			c = c.drawObject(item,point,0.01)
+		})
+	})
 	requestAnimationFrame(render)
 }
 
